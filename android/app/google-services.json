@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "372667235313",
+    "project_id": "survey-cam-c103a",
+    "storage_bucket": "survey-cam-c103a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:372667235313:android:7752a0c79f331997336250",
+        "android_client_info": {
+          "package_name": "com.example.survey_cap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-jWDg8TlRaoNRo6vDSKaHVV6Kpm6fTTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
