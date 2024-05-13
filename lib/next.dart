@@ -1,104 +1,32 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
+//import 'dart:async';
+import 'dart:io';
+//import 'package:path/path.dart';
 
-class SurveyUploads extends StatefulWidget {
-  const SurveyUploads({super.key});
+class UploadSurvey extends StatefulWidget {
+  const UploadSurvey({super.key});
 
   @override
-  State<SurveyUploads> createState() => _SurveyUploadsState();
+  State<UploadSurvey> createState() => _UploadSurveyState();
 }
 
-class _SurveyUploadsState extends State<SurveyUploads> {
+class _UploadSurveyState extends State<UploadSurvey> {
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
 
   List<File> _photos = [];
 
   final ImagePicker _picker = ImagePicker();
-
-  Future imageFromGallery() async {
-    final PickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (PickedFile != null) {
-        _photos.add(File(PickedFile.path));
-      } else {
-        print('No image selected');
-      }
-    });
-  }
-
-  Future imageFromCamera() async {
-    final PickedFile = await _picker.pickImage(source: ImageSource.camera);
-
-    setState(() {
-      if (PickedFile != null) {
-        _photos.add(File(PickedFile.path));
-      } else {
-        print('No image selected');
-      }
-    });
-  }
-
-  Future<void> _uploadFiles() async {
-    for (File photo in _photos) {
-      await _uploadFile(photo);
-    }
-    setState(() {
-      _photos.clear();
-    });
-  }
-
-  Future<void> _uploadFile(File photo) async {
-    if (photo == null) return;
-    final fileName = basename(photo.path);
-    final destination = 'files/$fileName';
-
-    try {
-      final ref = firebase_storage.FirebaseStorage.instance
-          .ref(destination)
-          .child('file/');
-      await ref.putFile(photo);
-    } catch (e) {
-      print('error occured');
-    }
-  }
-
-  void _showPicker(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) {
-          return SafeArea(
-            child: Container(
-              child: new Wrap(
-                children: [
-                  new ListTile(
-                    leading: new Icon(Icons.photo_library),
-                    title: new Text('Gallery'),
-                    onTap: () {
-                      imageFromGallery();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  new ListTile(
-                    leading: new Icon(Icons.photo_camera),
-                    title: new Text('Camera'),
-                    onTap: () {
-                      imageFromCamera();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
+//pick image from gallery method
+  Future imageFromGallery() async {}
+  //pick image from camera method
+  Future imageFromCamera() async {}
+  //show image picker method
+  void _showPicker(BuildContext context) {}
+  //upload tofirebase method
+  Future<void> _uploadFiles() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -171,11 +99,6 @@ class _SurveyUploadsState extends State<SurveyUploads> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {},
-      //   tooltip: 'capture',
-      //   child: const Icon(Icons.photo_camera),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

@@ -16,7 +16,7 @@ class _FormScreenState extends State<FormScreen> {
   Future<void> _pickImages() async {
     final picker = ImagePicker();
     final pickedImages = await picker.pickMultiImage(
-        maxWidth: 1920, maxHeight: 1200, imageQuality: 80);
+        maxWidth: 200, maxHeight: 200, imageQuality: 80);
     if (pickedImages != null) {
       for (var image in pickedImages) {
         // Upload images to Firebase Storage and get download URLs
