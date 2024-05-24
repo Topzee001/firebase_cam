@@ -1,20 +1,19 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:survey_cap/response.dart';
 
 class MultiImagesPickerForm extends StatefulWidget {
-  const MultiImagesPickerForm({Key? key}) : super(key: key);
+  const MultiImagesPickerForm({super.key});
 
   @override
-  MultiImagesPickerFormState createState() => MultiImagesPickerFormState();
+  MultiImagePickerFormState createState() => MultiImagePickerFormState();
 }
 
-class MultiImagesPickerFormState extends State<MultiImagesPickerForm> {
+class MultiImagePickerFormState extends State<MultiImagesPickerForm> {
   String name = '';
   String phoneNumber = '';
   String address = '';
@@ -22,41 +21,65 @@ class MultiImagesPickerFormState extends State<MultiImagesPickerForm> {
 
   Future<void> pickImages() async {
     final pickedFiles = await ImagePicker().pickMultiImage();
-    if (pickedFiles != null) {
+    if (pickedFiles.isNotEmpty) {
       setState(() {
-        pickedImages = pickedFiles;
+        pickedImages.addAll(pickedFiles);
       });
     }
   }
 
   Future<void> submitForm() async {
-    // Upload images to Firebase Storage
-    List<String> imageUrls = [];
-    for (var image in pickedImages) {
-      final Reference ref =
-          FirebaseStorage.instance.ref().child('images/${DateTime.now()}');
-      final UploadTask uploadTask = ref.putFile(File(image.path));
-      final TaskSnapshot snapshot = await uploadTask;
-      final String url = await snapshot.ref.getDownloadURL();
-      imageUrls.add(url);
+    try {
+      // Upload images to Firebase Storage
+      List<String> imageUrls = [];
+      for (var image in pickedImages) {
+        final Reference ref = FirebaseStorage.instance
+            .ref()
+            .child('images/${DateTime.now().millisecondsSinceEpoch}');
+        final UploadTask uploadTask = ref.putFile(File(image.path));
+        final TaskSnapshot downloadUrl = await uploadTask;
+        final String url = await downloadUrl.ref.getDownloadURL();
+        imageUrls.add(url);
+      }
+
+      // Save form data to Firestore
+      await FirebaseFirestore.instance.collection('form_submissions').add({
+        'name': name,
+        'phone_number': phoneNumber,
+        'address': address,
+        'image_urls': imageUrls,
+        'timestamp': Timestamp.now(),
+      });
+
+      // Reset form fields and picked images after successful submission
+      setState(() {
+        name = '';
+        phoneNumber = '';
+        address = '';
+        //pickedImages = [];
+        pickedImages.clear();
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Form submitted successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (error) {
+      // Handle errors
+      print('Error submitting form: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error submitting form. Please try again later.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
+    // setState(() {
 
-    // Save form data to Firestore
-    await FirebaseFirestore.instance.collection('form_submissions').add({
-      'name': name,
-      'phone_number': phoneNumber,
-      'address': address,
-      'image_urls': imageUrls,
-      'timestamp': Timestamp.now(),
-    });
-
-    // Reset form fields and picked images
-    setState(() {
-      name = '';
-      phoneNumber = '';
-      address = '';
-      pickedImages = [];
-    });
+    // });
   }
 
   @override
@@ -106,6 +129,13 @@ class MultiImagesPickerFormState extends State<MultiImagesPickerForm> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FirestoreDataViewer(),
+            ));
+      }),
     );
   }
 }
